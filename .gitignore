@@ -5,6 +5,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# MacOS files
+.DS_Store
+
+# HTML files
+*.html
+
+# ZIP files
+*.zip
+
 # Runtime data
 pids
 *.pid

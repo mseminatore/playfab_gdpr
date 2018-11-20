@@ -1,0 +1,26 @@
+{
+  "name": "gdpr",
+  "version": "1.0.0",
+  "description": "PlayFab GDPR processor",
+  "main": "gdpr.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "PlayFab",
+    "GDPR"
+  ],
+  "author": "Mark Seminatore",
+  "license": "MIT",
+  "dependencies": {
+    "decompress": "^4.2.0"
+  },
+  "devDependencies": {
+    "colors": "^1.3.2",
+    "commander": "^2.19.0"
+  }
+}
