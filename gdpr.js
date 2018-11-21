@@ -12,44 +12,42 @@
 const decompress = require("decompress");
 const fs = require('fs');
 const path = require('path');
-
-var arrayIndex = 0;
+const jsonlines = require('jsonlines');
+const parser = jsonlines.parse();
 
 /**
  *
  */
 function prolog() {
-    console.log("<html>");
-    console.log("<head>");
-    console.log("<link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css'>");
-    console.log("<link rel='stylesheet' href='style.css'>");
-    console.log("<script src='util.js'></script>");
-    console.log("</head>");
-    console.log("<body class='background'>");
+    output("<html>");
+    output("<head>");
+    output("<link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css'>");
+    output("<link rel='stylesheet' href='style.css'>");
+    output("<script src='util.js'></script>");
+    output("</head>");
+    output("<body class='background'>");
 }
 
 /**
  * 
  */
 function epilog() {
-    console.log("</body></html>");
+    output("</body></html>");
 }
 
 /**
- * {
- *   data: Buffer,
- *   mode: Number,
- *   mtime: String,
- *   path: String,
- *   type: String
- * }
+ * 
+ * @param {string} str 
  */
-
+function output(str) {
+    // TODO - also allow outputting to a file if given on command-line
+    console.log(str);
+}
 
 // handlers for special files
 var specialFiles = {
-    "master_player_export.json": masterPlayerData
-//    "event-history.jsonl": eventHistory
+    "master_player_export.json": masterPlayerData,
+    // "event-history.jsonl": eventHistory
 };
 
 // handlers for special properties
@@ -57,21 +55,23 @@ var specialProps = {
     "TitleId": skip //redact
 };
 
-// skip a property
+// skip over a property
 function skip(property, obj) {
-
+    /* do nothing! */
 }
 
 // redact a property
 function redact(property, obj) {
-    console.log("<tr><td>" + property + "</td><td>{redacted}</td></tr>");
+    output("<tr><td>" + property + "</td><td>{redacted}</td></tr>");
 }
 
 // print a proprty
 function print(property, obj) {
-    console.log("<tr><td>" + property + "</td><td>" + obj[property] + "</td></tr>");
+    output("<tr><td>" + property + "</td><td>" + obj[property] + "</td></tr>");
 }
 
+//
+// Recursively process all the object properties
 //
 function dumpObject(obj) {
     for (var property in obj) {
@@ -82,17 +82,15 @@ function dumpObject(obj) {
             // console.error(typeof obj[property]);
             
             if (Array.isArray(obj[property])) {
-                console.log("<tr><td colspan='2' class='array'>" + property + " [array]</td></tr>");
-                // console.log("<tbody id='el" + arrayIndex + "' class='w3-hide'>");
-                arrayIndex++;
+                output("<tr><td colspan='2' class='array'>" + property + " [array]</td></tr>");
             }
 
             // console.error("Dumping object " + property);
 
             dumpObject(obj[property]);
 
+            // end of array
             if (Array.isArray(obj[property])) {
-                // console.log("</tbody>");
             }
 
         } else {
@@ -110,21 +108,14 @@ function dumpObject(obj) {
     console.error("Found master player file!");
     var mp = JSON.parse(file.data.toString());
 
-    console.log("<table>");
-    console.log("<caption>" + path.basename(file.path) + "</caption>");
-    console.log("<thead><tr><th>Property</th><th>Value</th></tr></thead>");
+    output("<table>");
+    output("<caption>" + path.basename(file.path) + "</caption>");
+    output("<tr><th>Property</th><th>Value</th></tr>");
 
     // recursively process all the properties in the file
     dumpObject(mp);
 
-    // for (var x in mp) {
-    //     console.log("<tr><td>" + x + "</td><td>" + mp[x] + "</td></tr>");
-    //     if (specialProps[x]) {
-    //         specialProps[x](mp[x]);
-    //     }
-    // }
-
-    console.log("</table>"); 
+    output("</table>"); 
  }
 
 /**
@@ -133,16 +124,19 @@ function dumpObject(obj) {
  */
  function eventHistory(file) {
     console.error("Found event history file!");
-    var mp = JSON.parse(file.data.toString());
 
-    console.log("<table>");
-    console.log("<tr><th>Property</th><th>Value</th></tr>");
+    output("<table>");
+    output("<caption>" + path.basename(file.path) + "</caption>");
+    output("<tr><th>Property</th><th>Value</th></tr>");
 
-    for (var x in mp) {
-        console.log("<tr><td>" + x + "</td><td>" + mp[x] + "</td></tr>");
-    }
+    parser.on('data', function(data) {
+        dumpObject(data);
+    });
 
-    console.log("</table>");
+    parser.write(file.data.toString());
+    parser.end();
+
+    output("</table>");
  }
 
 /**

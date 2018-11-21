@@ -41,6 +41,10 @@ th {
 }
 
 .array {
-    background-color: #0ad;
+    background-color: rgb(99, 175, 101);
     color: white;
+}
+
+.array-entry {
+    background-color: #aaa;
 }
