@@ -13,6 +13,8 @@ const decompress = require("decompress");
 const fs = require('fs');
 const path = require('path');
 
+var arrayIndex = 0;
+
 /**
  *
  */
@@ -21,6 +23,7 @@ function prolog() {
     console.log("<head>");
     console.log("<link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css'>");
     console.log("<link rel='stylesheet' href='style.css'>");
+    console.log("<script src='util.js'></script>");
     console.log("</head>");
     console.log("<body class='background'>");
 }
@@ -75,15 +78,23 @@ function dumpObject(obj) {
         if (specialProps[property]) {
             specialProps[property](property, obj[property]);
         } else if (typeof obj[property] === 'object' && obj[property] !== null) {
-            console.error(property);
-            console.error(typeof obj[property]);
+            // console.error(property);
+            // console.error(typeof obj[property]);
             
             if (Array.isArray(obj[property])) {
-                console.log("<tr><td colspan='2' class='array'>" + property + " (array)</td></tr>");
+                console.log("<tr><td colspan='2' class='array'>" + property + " [array]</td></tr>");
+                // console.log("<tbody id='el" + arrayIndex + "' class='w3-hide'>");
+                arrayIndex++;
             }
 
-            console.error("Dumping object " + property);
+            // console.error("Dumping object " + property);
+
             dumpObject(obj[property]);
+
+            if (Array.isArray(obj[property])) {
+                // console.log("</tbody>");
+            }
+
         } else {
             // write out the property
             print(property, obj);
@@ -101,7 +112,7 @@ function dumpObject(obj) {
 
     console.log("<table>");
     console.log("<caption>" + path.basename(file.path) + "</caption>");
-    console.log("<tr><th>Property</th><th>Value</th></tr>");
+    console.log("<thead><tr><th>Property</th><th>Value</th></tr></thead>");
 
     // recursively process all the properties in the file
     dumpObject(mp);
